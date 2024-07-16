@@ -116,7 +116,7 @@ export type User = {
   status: "active" | "in-active";
 };
 
-export const columns: ColumnDef<User>[] = [
+const columns: ColumnDef<User>[] = [
   {
     accessorKey: "id",
     header: "ID",

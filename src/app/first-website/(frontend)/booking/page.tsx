@@ -11,16 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export function StepperExamples() {
-  return (
-    <div className="w-full space-y-8">
-      <div className="flex flex-col gap-4">
-        <p className="font-semibold">Footer inside the step</p>
-        <StepperFooterInside />
-      </div>
-    </div>
-  );
-}
+// export function StepperExamples() {
+//   return (
+//     <div className="w-full space-y-8">
+//       <div className="flex flex-col gap-4">
+//         <p className="font-semibold">Footer inside the step</p>
+//         <StepperFooterInside />
+//       </div>
+//     </div>
+//   );
+// }
 
 const steps = [
   { label: "Choose location" },

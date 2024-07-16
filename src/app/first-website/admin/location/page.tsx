@@ -105,7 +105,7 @@ export type Payment = {
   status: "active" | "in-active";
 };
 
-export const columns: ColumnDef<Payment>[] = [
+const columns: ColumnDef<Payment>[] = [
   {
     accessorKey: "id",
     header: "ID",

@@ -181,7 +181,7 @@ const WaitingList: React.FC = () => (
   </div>
 );
 
-export const columns: ColumnDef<Match>[] = [
+const columns: ColumnDef<Match>[] = [
   {
     accessorKey: "matchId",
     header: "Match ID",
