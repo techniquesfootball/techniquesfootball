@@ -1,0 +1,358 @@
+@tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  @layer base {
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 222.2 84% 4.9%;
+
+      --card: 0 0% 100%;
+      --card-foreground: 222.2 84% 4.9%;
+
+      --popover: 0 0% 100%;
+      --popover-foreground: 222.2 84% 4.9%;
+
+      --primary: 222.2 47.4% 11.2%;
+      --primary-foreground: 210 40% 98%;
+
+      --secondary: 210 40% 96.1%;
+      --secondary-foreground: 222.2 47.4% 11.2%;
+
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+
+      --accent: 210 40% 96.1%;
+      --accent-foreground: 222.2 47.4% 11.2%;
+
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 40% 98%;
+
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 222.2 84% 4.9%;
+
+      --radius: 0.5rem;
+    }
+
+    .dark {
+      --background: 222.2 84% 4.9%;
+      --foreground: 210 40% 98%;
+
+      --card: 222.2 84% 4.9%;
+      --card-foreground: 210 40% 98%;
+
+      --popover: 222.2 84% 4.9%;
+      --popover-foreground: 210 40% 98%;
+
+      --primary: 210 40% 98%;
+      --primary-foreground: 222.2 47.4% 11.2%;
+
+      --secondary: 217.2 32.6% 17.5%;
+      --secondary-foreground: 210 40% 98%;
+
+      --muted: 217.2 32.6% 17.5%;
+      --muted-foreground: 215 20.2% 65.1%;
+
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
+
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 210 40% 98%;
+
+      --border: 217.2 32.6% 17.5%;
+      --input: 217.2 32.6% 17.5%;
+      --ring: 212.7 26.8% 83.9%;
+    }
+  }
+
+  @layer base {
+    * {
+      @apply border-border;
+    }
+    body {
+      @apply bg-background text-foreground;
+    }
+  }
+
+  .pitch{
+            background: linear-gradient(135deg, #238729, #0e5e24);
+    width: 590px;
+    height: 380px;
+    position: relative;
+}
+.pitch:after{
+  content: "";
+  border-left: 2px solid white;
+  position: absolute;
+  top :20px;
+  left :295px;
+  display:block;
+  height:340px;
+}
+
+.pitch:before{
+  content: "";
+  border: 2px solid white;
+  position: absolute;
+  top :20px;
+  left :20px;
+  display:block;
+  width: 550px;
+  height:340px;
+}
+
+.center-circle{
+    position: absolute;
+    top: 145px;
+    left: 250px;
+    width: 90px;
+    height: 90px;
+    border: 2px solid white;
+    border-radius: 50%;
+}
+
+.penalty-area{
+    position: absolute;
+    height: 140px;
+    width: 80px;
+    top: 120px;
+    border: 2px solid white;
+}
+
+.left .penalty-area{
+    left: 20px;
+    border-left: 0;
+}
+
+.right .penalty-area{
+    right: 19px;
+    border-right: 0;
+}
+
+.penalty-area:before{
+    position: absolute;
+    height: 70px;
+    width: 35px;
+    top: 35px;
+    border: 2px solid white;
+    content:"";
+}
+.left .penalty-area:before{
+   left:0px;
+  border-left:0;
+}
+.right .penalty-area:before{
+   right:0px;
+  border-right:0;
+}
+
+.penalty-area:after{
+    position: absolute;
+    height: 2px;
+    width: 2px;
+    top: 70px;
+    background-color:white;
+    content:"";
+}
+.left .penalty-area:after{
+    right:15px;
+}
+.right .penalty-area:after{
+    left:15px;
+}
+
+.player{
+  position:absolute;
+  border-radius:50%;
+  width:20px;
+  color:white;
+  height:20px;
+}
+.player:after{
+  font-size:10px;
+  position:absolute;
+  left:7px;
+  top: 3px;
+}
+.home-team .player{
+  background:red;
+}
+.home-team .player.one{
+  top:180px;
+  left:25px;
+  background:rgb(255, 106, 0);
+}
+.home-team .player.one:after{
+  content:"1";
+}
+.home-team .player.two{
+  top:310px;
+  left:75px;
+}
+.home-team .player.two:after{
+  content:"2";
+}
+.home-team .player.three{
+  top:60px;
+  left:75px;
+}
+.home-team .player.three:after{
+  content:"3";
+}
+.home-team .player.four{
+  top:145px;
+  left:75px;
+}
+.home-team .player.four:after{
+  content:"4";
+}
+.home-team .player.five{
+  top:225px;
+  left:75px;
+}
+.home-team .player.five:after{
+  content:"5";
+}
+.home-team .player.six{
+  top:310px;
+  left:155px;
+}
+.home-team .player.six:after{
+  content:"6";
+}
+.home-team .player.seven{
+  top:60px;
+  left:155px;
+}
+.home-team .player.seven:after{
+  content:"7";
+}
+.home-team .player.eight{
+  top:145px;
+  left:155px;
+}
+.home-team .player.eight:after{
+  content:"8";
+}
+.home-team .player.nine{
+  top:225px;
+  left:155px;
+}
+.home-team .player.nine:after{
+  content:"9";
+}
+.home-team .player.ten{
+  top:145px;
+  left:240px;
+}
+.home-team .player.ten:after{
+  content:"10";
+  left:4px;
+}
+.home-team .player.eleven{
+  top:225px;
+  left:240px;
+}
+.home-team .player.eleven:after{
+  content:"11";
+  left:4px;
+}
+.visitor-team .player{
+  background:blue;
+}
+.visitor-team .player:after{
+  color:white;
+}
+.visitor-team .player.one{
+  top:180px;
+  right:25px;
+  background:rgb(255, 106, 0);
+}
+.visitor-team .player.one:after{
+  content:"1";
+  color:white;
+}
+.visitor-team .player.two{
+  top:310px;
+  right:75px;
+}
+.visitor-team .player.two:after{
+  content:"2";
+}
+.visitor-team .player.three{
+  top:60px;
+  right:75px;
+}
+.visitor-team .player.three:after{
+  content:"3";
+}
+.visitor-team .player.four{
+  top:145px;
+  right:75px;
+}
+.visitor-team .player.four:after{
+  content:"4";
+}
+.visitor-team .player.five{
+  top:225px;
+  right:75px;
+}
+.visitor-team .player.five:after{
+  content:"5";
+}
+.visitor-team .player.six{
+  top:310px;
+  right:155px;
+}
+.visitor-team .player.six:after{
+  content:"6";
+}
+.visitor-team .player.seven{
+  top:60px;
+  right:155px;
+}
+.visitor-team .player.seven:after{
+  content:"7";
+}
+.visitor-team .player.eight{
+  top:145px;
+  right:155px;
+}
+.visitor-team .player.eight:after{
+  content:"8";
+}
+.visitor-team .player.nine{
+  top:225px;
+  right:155px;
+}
+.visitor-team .player.nine:after{
+  content:"9";
+}
+.visitor-team .player.ten{
+  top:145px;
+  right:240px;
+}
+.visitor-team .player.ten:after{
+  content:"10";
+  left:4px;
+}
+.visitor-team .player.eleven{
+  top:225px;
+  right:240px;
+}
+.visitor-team .player.eleven:after{
+  content:"11";
+  left:4px;
+}
+.player{
+  animation-duration:5s;
+  animation-timing-function:linear;
+  animation-delay:2s;
+  animation-iteration-count:infinite;
+  animation-direction:alternate;
+  animation-play-state:running;
+}
+.home-team .player.nine{
+  animation-name:nine;
+}
