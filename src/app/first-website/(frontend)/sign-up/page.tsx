@@ -1,3 +1,4 @@
+// signup.tsx
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,10 +22,23 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { signUp } from "@/services/auth";
 
 const FormSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+  first_name: z.string().min(2, {
+    message: "Firstname must be at least 2 characters.",
+  }),
+  last_name: z.string().min(2, {
+    message: "Lastname must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Invalid email address.",
+  }),
+  phone_number: z.string().min(10, {
+    message: "Phone number must be at least 10 characters.",
+  }),
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
   }),
 });
 
@@ -32,19 +46,32 @@ export default function InputForm() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      username: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone_number: "",
+      password: "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const userData = await signUp(
+        `${data.first_name} ${data.last_name}`,
+        data.email,
+        data.password
+      );
+
+      toast({
+        title: "Success",
+        description: "User data has been saved.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+      });
+    }
   }
 
   return (
@@ -58,70 +85,98 @@ export default function InputForm() {
             <h1 className="text-2xl font-bold text-center">Sign Up</h1>
             <FormField
               control={form.control}
-              name="username"
+              name="first_name"
               render={({ field }) => (
-                <>
-                  <FormItem>
-                    <FormLabel>Firstname</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your firstname" {...field} />
-                    </FormControl>
-                  </FormItem>
-                  <FormItem>
-                    <FormLabel>Lastname</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your lastname" {...field} />
-                    </FormControl>
-                  </FormItem>
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                  <FormItem>
-                    <FormLabel>Phone number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your phone number" {...field} />
-                    </FormControl>
-                  </FormItem>
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                  <FormItem>
-                    <FormLabel>Role</FormLabel>
-                    <FormControl>
-                      <Select>
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="player">Player</SelectItem>
-                          <SelectItem value="coach">Coach</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                </>
+                <FormItem>
+                  <FormLabel>Firstname</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your firstname" {...field} />
+                  </FormControl>
+                </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Lastname</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your lastname" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your phone number" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your password"
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            {/* <FormField
+              control={form.control}
+              name=""
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role</FormLabel>
+                  <FormControl>
+                    <Select {...field}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="player">Player</SelectItem>
+                        <SelectItem value="coach">Coach</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            /> */}
             <Button type="submit" className="w-full">
               Submit
             </Button>
             <div className="mb-1"></div>
             <Link href="/first-website/login" className="underline">
-              <Button type="submit" variant="outline" className="w-full">
+              <Button type="button" variant="outline" className="w-full">
                 Go back
               </Button>
             </Link>

@@ -64,66 +64,52 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { z } from "zod";
+import { createLocation, readLocations } from "@/services/locations";
+import { toast } from "@/components/ui/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    address: "bulacan",
-    contactPerson: "Danilo B. Santos",
-    status: "active",
-  },
-  {
-    id: "3u1reuv4",
-    address: "Manila",
-    contactPerson: "Danilo B. Santos",
-    status: "active",
-  },
-  {
-    id: "derv1ws0",
-    address: "bulacan",
-    contactPerson: "Danilo B. Santos",
-    status: "active",
-  },
-  {
-    id: "5kma53ae",
-    address: "bulacan",
-    contactPerson: "Danilo B. Santos",
-    status: "active",
-  },
-  {
-    id: "bhqecj4p",
-    address: "bulacan",
-    contactPerson: "Danilo B. Santos",
-    status: "active",
-  },
-];
-
-export type Payment = {
-  id: string;
-  address: string;
-  contactPerson: string;
-  status: "active" | "in-active";
+export const Icons = {
+  spinner: Loader2,
 };
 
-const columns: ColumnDef<Payment>[] = [
+const FormSchema = z.object({
+  first_name: z.string().min(2, {
+    message: "Firstname must be at least 2 characters.",
+  }),
+  last_name: z.string().min(2, {
+    message: "Lastname must be at least 2 characters.",
+  }),
+  email: z.string().email({
+    message: "Invalid email address.",
+  }),
+  phone_number: z.string().min(11, {
+    message: "Phone number must be at least 10 characters.",
+  }),
+  surface_type: z.string(),
+  lighting: z.string(),
+  parking: z.string(),
+  description: z.string(),
+});
+
+const columns: ColumnDef<LocationModel>[] = [
   {
-    accessorKey: "id",
+    accessorKey: "location_id",
     header: "ID",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("id")}</div>,
+    cell: ({ row }) => <div>{row.getValue("location_id")}</div>,
   },
   {
-    accessorKey: "address",
-    header: "Address",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("address")}</div>
-    ),
+    accessorKey: "contact_person",
+    header: "Contact Person",
+    cell: ({ row }) => <div>{row.getValue("contact_person")}</div>,
   },
   {
-    accessorKey: "contactPerson",
-    header: "Contact person",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("contactPerson")}</div>
-    ),
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {
     accessorKey: "status",
@@ -147,7 +133,11 @@ const columns: ColumnDef<Payment>[] = [
             <DropdownMenuLabel className="text-center">
               Actions
             </DropdownMenuLabel>
-            <Link href="/first-website/admin/location/8/calendar">
+            <Link
+              href={`/first-website/admin/location/${row.getValue(
+                "location_id"
+              )}/calendar`}
+            >
               <Button variant="ghost" className="font-normal w-full">
                 Calendar
               </Button>
@@ -217,9 +207,7 @@ const columns: ColumnDef<Payment>[] = [
                       />
                     </div>
                   </div>
-                  <DialogFooter>
-                    <Button type="submit">Save</Button>
-                  </DialogFooter>
+                  <Button type="submit">Save</Button>
                 </DialogContent>
               </Dialog>
               <AlertDialog>
@@ -263,6 +251,46 @@ export default function DataTableDemo() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [data, setData] = React.useState<LocationModel[]>([]);
+  const [loading, setLoading] = React.useState(true); // Add loading state
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false); // Add dialog open state
+  const [isSubmitting, setIsSubmitting] = React.useState(false); // Add submitting state
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone_number: "",
+      password: "",
+      lighting: "",
+      parking: "",
+      description: "",
+      status: "",
+      surface_type: "",
+    },
+  });
+
+  const fetchData = React.useCallback(async () => {
+    setLoading(true);
+    const result = await readLocations();
+    if (typeof result === "string") {
+      console.error(result);
+    } else {
+      setData(result);
+    }
+    setLoading(false);
+  }, []);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const table = useReactTable({
     data,
@@ -283,10 +311,41 @@ export default function DataTableDemo() {
     },
   });
 
+  async function onSubmit(formData: z.infer<typeof FormSchema>) {
+    setIsSubmitting(true);
+    try {
+      await createLocation({
+        longitude: "1",
+        latitude: "2",
+        contact_person: formData.first_name + " " + formData.last_name,
+        email: formData.email,
+        phone_number: formData.phone_number,
+        surface_type: formData.surface_type,
+        lighting: formData.lighting,
+        parking: formData.parking,
+        description: formData.description,
+      });
+      toast({
+        title: "Success",
+        description: "User data has been saved.",
+      });
+      reset();
+      fetchData();
+      setIsDialogOpen(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <div className="w-full">
       <div className="flex items-center mb-4">
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="mr-2">Add Location</Button>
           </DialogTrigger>
@@ -297,63 +356,90 @@ export default function DataTableDemo() {
                 Fill all the required fields. Click save when you're done.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                <Label htmlFor="contact-info" className="text-right">
-                  Contact Information
-                </Label>
-                <div className="col-span-2 grid gap-2">
-                  <Input type="text" placeholder="Contact person" />
-                  <Input type="email" placeholder="Email" />
-                  <Input type="tel" placeholder="Phone number" />
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                  <Label htmlFor="contact-info" className="text-right">
+                    Contact Information
+                  </Label>
+                  <div className="col-span-2 grid gap-2">
+                    <Input
+                      {...register("first_name")}
+                      placeholder="First Name"
+                    />
+                    <Input {...register("last_name")} placeholder="Last Name" />
+                    <Input
+                      {...register("email")}
+                      type="email"
+                      placeholder="Email"
+                    />
+                    <Input
+                      {...register("phone_number")}
+                      type="tel"
+                      placeholder="Phone Number"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                  <Label htmlFor="surface-type" className="text-right">
+                    Surface Type
+                  </Label>
+                  <Select {...register("surface_type")}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Select a type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="grass">Grass</SelectItem>
+                        <SelectItem value="turf">Turf</SelectItem>
+                        <SelectItem value="indoor">Indoor</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                  <Label htmlFor="lighting" className="text-right">
+                    Lighting
+                  </Label>
+                  <Switch id="lighting" {...register("lighting")} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                  <Label htmlFor="parking" className="text-right">
+                    Parking Availability
+                  </Label>
+                  <Switch id="parking" {...register("parking")} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Textarea
+                    id="description"
+                    {...register("description")}
+                    className="w-full sm:col-span-2"
+                  />
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                <Label htmlFor="surface-type" className="text-right">
-                  Surface Type
-                </Label>
-                <Select>
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="grass">Grass</SelectItem>
-                      <SelectItem value="turf">Turf</SelectItem>
-                      <SelectItem value="indoor">Indoor</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                <Label htmlFor="lighting" className="text-right">
-                  Lighting
-                </Label>
-                <Switch id="lighting" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                <Label htmlFor="parking" className="text-right">
-                  Parking Availability
-                </Label>
-                <Switch id="parking" />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Textarea id="description" className="w-full sm:col-span-2" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Save</Button>
-            </DialogFooter>
+              <DialogFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <span className="flex items-center space-x-2">
+                      <Icons.spinner className="h-4 w-4 animate-spin" />
+                      <span>Saving...</span>
+                    </span>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
         <Input
           placeholder="Filter address..."
-          value={(table.getColumn("address")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("address")?.setFilterValue(event.target.value)
+            table.getColumn("email")?.setFilterValue(event.target.value)
           }
           className="max-w-sm mr-2"
         />
@@ -367,30 +453,28 @@ export default function DataTableDemo() {
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
+        {loading ? (
+          <Skeleton className="h-52 w-full" />
+        ) : (
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
@@ -399,40 +483,40 @@ export default function DataTableDemo() {
                             header.getContext()
                           )}
                     </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="space-x-2">
