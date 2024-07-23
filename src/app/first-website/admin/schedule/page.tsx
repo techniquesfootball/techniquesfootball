@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useEffect } from "react";
 import { ChevronDownIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
@@ -39,149 +40,21 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getSchedules } from "@/services/schedule";
 
-const data: Match[] = [
-  {
-    matchId: "bhqecj4p",
-    playerCount: "5/10",
-    matchDateAndTime: "Feb 20 2025, 10:00am",
-    location: "10 Downing Street, Westminster, London, UK",
-    status: "scheduled",
-  },
-  {
-    matchId: "bhqecj4p",
-    playerCount: "5/10",
-    matchDateAndTime: "Feb 20 2025, 10:00am",
-    location: "10 Downing Street, Westminster, London, UK",
-    status: "scheduled",
-  },
-  {
-    matchId: "bhqecj4p",
-    playerCount: "5/10",
-    matchDateAndTime: "Feb 20 2025, 10:00am",
-    location: "10 Downing Street, Westminster, London, UK",
-    status: "scheduled",
-  },
-  {
-    matchId: "bhqecj4p",
-    playerCount: "5/10",
-    matchDateAndTime: "Feb 20 2025, 10:00am",
-    location: "10 Downing Street, Westminster, London, UK",
-    status: "scheduled",
-  },
-  {
-    matchId: "bhqecj4p",
-    playerCount: "5/10",
-    matchDateAndTime: "Feb 20 2025, 10:00am",
-    location: "10 Downing Street, Westminster, London, UK",
-    status: "scheduled",
-  },
-];
+type Schedule = {
+  schedule_id: string;
+  team_a: string;
+  team_b: string;
+  date_and_time: string;
+};
 
-interface Player {
+type Player = {
   name: string;
   position: string;
-}
-
-const playersLightTees: Player[] = [
-  { name: "dylanbrooks", position: "Not set" },
-  { name: "alejandrolb", position: "Not set" },
-  { name: "luke-o-shea", position: "Not set" },
-  { name: "eashwer18", position: "Not set" },
-  { name: "germanwunder", position: "Not set" },
-  { name: "open spot", position: "Join Game" },
-];
-
-const playersDarkTees: Player[] = [
-  { name: "jv100", position: "Midfielder" },
-  { name: "vern", position: "Not set" },
-  { name: "bilardinho", position: "Not set" },
-  { name: "ben-souris", position: "Not set" },
-  { name: "illes", position: "Not set" },
-  { name: "open spot", position: "Join Game" },
-];
-
-export type Match = {
-  matchId: string;
-  playerCount: string;
-  matchDateAndTime: String;
-  location: String;
-  status: "scheduled" | "ongoing" | "completed" | "postponed";
 };
-const PlayerItem: React.FC<Player> = ({ name, position }) => (
-  <div className="flex flex-row items-center justify-end space-x-4">
-    <div className="text-right">
-      <p className="font-medium">{name}</p>
-      <p className="text-sm text-gray-500">{position}</p>
-    </div>
-    <Avatar className="w-10 h-10">
-      <AvatarImage src="https://github.com/shadcn.png" />
-      <AvatarFallback>CN</AvatarFallback>
-    </Avatar>
-  </div>
-);
 
-const PlayerItem2: React.FC<Player> = ({ name, position }) => (
-  <div className="flex flex-row items-center justify-start space-x-4">
-    <Avatar className="w-10 h-10">
-      <AvatarImage src="https://github.com/shadcn.png" />
-      <AvatarFallback>CN</AvatarFallback>
-    </Avatar>
-    <div className="text-left">
-      <p className="font-medium">{name}</p>
-      <p className="text-sm text-gray-500">{position}</p>
-    </div>
-  </div>
-);
-
-const PlayersVersus: React.FC = () => (
-  <div className="flex justify-center items-center space-x-8">
-    <div className="flex flex-col items-end flex-1 space-y-4">
-      <h2 className="font-semibold text-center mb-4">Light Tees</h2>
-      {playersLightTees.map((player, index) => (
-        <PlayerItem key={index} {...player} />
-      ))}
-    </div>
-    <div className="text-2xl font-bold flex-3">VS</div>
-    <div className="flex flex-col items-start flex-1 space-y-4">
-      <h2 className="font-semibold text-center mb-4">Dark Tees</h2>
-      {playersDarkTees.map((player, index) => (
-        <PlayerItem2 key={index} {...player} />
-      ))}
-    </div>
-  </div>
-);
-
-const waitingList: Player[] = [
-  { name: "john_doe", position: "Forward" },
-  { name: "jane_doe", position: "Defender" },
-  { name: "jack_smith", position: "Midfielder" },
-  { name: "jill_brown", position: "Goalkeeper" },
-  { name: "open spot", position: "Join Game" },
-];
-
-const PlayerItemWaitingList: React.FC<Player> = ({ name, position }) => (
-  <div className="flex flex-row items-center justify-between space-x-4">
-    <Avatar className="w-10 h-10">
-      <AvatarImage src="https://github.com/shadcn.png" />
-      <AvatarFallback>{name[0]}</AvatarFallback>
-    </Avatar>
-    <div className="text-left flex-1">
-      <p className="font-medium">{name}</p>
-      <p className="text-sm text-gray-500">{position}</p>
-    </div>
-  </div>
-);
-
-const WaitingList: React.FC = () => (
-  <div className="flex flex-col space-y-4">
-    {waitingList.map((player, index) => (
-      <PlayerItemWaitingList key={index} {...player} />
-    ))}
-  </div>
-);
-
-const columns: ColumnDef<Match>[] = [
+const columns: ColumnDef<Schedule>[] = [
   {
     accessorKey: "matchId",
     header: "Match ID",
@@ -281,7 +154,99 @@ const columns: ColumnDef<Match>[] = [
   },
 ];
 
+const PlayersVersus: React.FC = () => (
+  <div className="flex justify-center items-center space-x-8">
+    <div className="flex flex-col items-end flex-1 space-y-4">
+      <h2 className="font-semibold text-center mb-4">Light Tees</h2>
+      {playersLightTees.map((player, index) => (
+        <PlayerItem key={index} {...player} />
+      ))}
+    </div>
+    <div className="text-2xl font-bold flex-3">VS</div>
+    <div className="flex flex-col items-start flex-1 space-y-4">
+      <h2 className="font-semibold text-center mb-4">Dark Tees</h2>
+      {playersDarkTees.map((player, index) => (
+        <PlayerItem2 key={index} {...player} />
+      ))}
+    </div>
+  </div>
+);
+
+const WaitingList: React.FC = () => (
+  <div className="flex flex-col space-y-4">
+    {waitingList.map((player, index) => (
+      <PlayerItemWaitingList key={index} {...player} />
+    ))}
+  </div>
+);
+
+const PlayerItem: React.FC<Player> = ({ name, position }) => (
+  <div className="flex flex-row items-center justify-end space-x-4">
+    <div className="text-right">
+      <p className="font-medium">{name}</p>
+      <p className="text-sm text-gray-500">{position}</p>
+    </div>
+    <Avatar className="w-10 h-10">
+      <AvatarImage src="https://github.com/shadcn.png" />
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
+  </div>
+);
+
+const PlayerItem2: React.FC<Player> = ({ name, position }) => (
+  <div className="flex flex-row items-center justify-start space-x-4">
+    <Avatar className="w-10 h-10">
+      <AvatarImage src="https://github.com/shadcn.png" />
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
+    <div className="text-left">
+      <p className="font-medium">{name}</p>
+      <p className="text-sm text-gray-500">{position}</p>
+    </div>
+  </div>
+);
+
+const PlayerItemWaitingList: React.FC<Player> = ({ name, position }) => (
+  <div className="flex flex-row items-center justify-between space-x-4">
+    <Avatar className="w-10 h-10">
+      <AvatarImage src="https://github.com/shadcn.png" />
+      <AvatarFallback>{name[0]}</AvatarFallback>
+    </Avatar>
+    <div className="text-left flex-1">
+      <p className="font-medium">{name}</p>
+      <p className="text-sm text-gray-500">{position}</p>
+    </div>
+  </div>
+);
+
+const playersLightTees: Player[] = [
+  { name: "dylanbrooks", position: "Not set" },
+  { name: "alejandrolb", position: "Not set" },
+  { name: "luke-o-shea", position: "Not set" },
+  { name: "eashwer18", position: "Not set" },
+  { name: "germanwunder", position: "Not set" },
+  { name: "open spot", position: "Join Game" },
+];
+
+const playersDarkTees: Player[] = [
+  { name: "jv100", position: "Midfielder" },
+  { name: "vern", position: "Not set" },
+  { name: "bilardinho", position: "Not set" },
+  { name: "ben-souris", position: "Not set" },
+  { name: "illes", position: "Not set" },
+  { name: "open spot", position: "Join Game" },
+];
+
+const waitingList: Player[] = [
+  { name: "john_doe", position: "Forward" },
+  { name: "jane_doe", position: "Defender" },
+  { name: "jack_smith", position: "Midfielder" },
+  { name: "jill_brown", position: "Goalkeeper" },
+  { name: "open spot", position: "Join Game" },
+];
+
 export default function DataTableDemo() {
+  const [data, setData] = React.useState<Schedule[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -289,6 +254,23 @@ export default function DataTableDemo() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getSchedules(); // Adjust if you need to pass a location_id
+        if (Array.isArray(result)) {
+          setData(result);
+        } else {
+          console.error("Error fetching schedules:", result); // Handle error message
+        }
+      } catch (error) {
+        console.error("Error fetching schedules:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const table = useReactTable({
     data,

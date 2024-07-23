@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
-import { ChevronDownIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { getUsers, UserData } from "@/services/auth";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -24,7 +25,6 @@ import {
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -63,70 +63,28 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const data: User[] = [
+const columns: ColumnDef<UserData>[] = [
   {
-    id: "m5gr84i9",
-    fullname: "Danilo B. Santos II",
-    email: "danilo1998271@gmail.com",
-    phoneNumber: "09276086843",
-    role: "player",
-    status: "active",
-  },
-  {
-    id: "m5gr84i9",
-    fullname: "Danilo B. Santos II",
-    email: "danilo1998271@gmail.com",
-    phoneNumber: "09276086843",
-    role: "player",
-    status: "active",
-  },
-  {
-    id: "m5gr84i9",
-    fullname: "Danilo B. Santos II",
-    email: "danilo1998271@gmail.com",
-    phoneNumber: "09276086843",
-    role: "player",
-    status: "active",
-  },
-  {
-    id: "m5gr84i9",
-    fullname: "Danilo B. Santos II",
-    email: "danilo1998271@gmail.com",
-    phoneNumber: "09276086843",
-    role: "player",
-    status: "active",
-  },
-  {
-    id: "m5gr84i9",
-    fullname: "Danilo B. Santos II",
-    email: "danilo1998271@gmail.com",
-    phoneNumber: "09276086843",
-    role: "player",
-    status: "active",
-  },
-];
-
-export type User = {
-  id: string;
-  fullname: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  status: "active" | "in-active";
-};
-
-const columns: ColumnDef<User>[] = [
-  {
-    accessorKey: "id",
+    accessorKey: "user_id",
     header: "ID",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("id")}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("user_id")}</div>
+    ),
   },
   {
-    accessorKey: "fullname",
-    header: "Fullname",
+    accessorKey: "first_name",
+    header: "First Name",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("fullname")}</div>
+      <div className="capitalize">{row.getValue("first_name")}</div>
+    ),
+  },
+  {
+    accessorKey: "last_name",
+    header: "Last Name",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("last_name")}</div>
     ),
   },
   {
@@ -135,10 +93,10 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {
-    accessorKey: "phoneNumber",
-    header: "Phone number",
+    accessorKey: "phone_number",
+    header: "Phone Number",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("phoneNumber")}</div>
+      <div className="capitalize">{row.getValue("phone_number")}</div>
     ),
   },
   {
@@ -147,13 +105,8 @@ const columns: ColumnDef<User>[] = [
     cell: ({ row }) => <div className="capitalize">{row.getValue("role")}</div>,
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => <Badge>{row.getValue("status")}</Badge>,
-  },
-  {
     id: "actions",
-    header: "Action",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
       return (
@@ -191,10 +144,10 @@ const columns: ColumnDef<User>[] = [
                     variant="ghost"
                     className="font-normal content-start!"
                   >
-                    <span className=" text-left p-0 m-0">Send message</span>
+                    <span className="text-left p-0 m-0">Send message</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className=" max-w-lg mx-auto p-6">
+                <DialogContent className="max-w-lg mx-auto p-6">
                   <DialogHeader>
                     <DialogTitle>Send Message</DialogTitle>
                     <DialogDescription>
@@ -234,9 +187,7 @@ const columns: ColumnDef<User>[] = [
                             size="icon"
                             variant="outline"
                             className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                          >
-                            {/* Add any icon or text if needed */}
-                          </Button>
+                          ></Button>
                         </CardTitle>
                         <CardDescription>Player</CardDescription>
                       </div>
@@ -307,7 +258,7 @@ const columns: ColumnDef<User>[] = [
                     variant="ghost"
                     className="font-normal content-start!"
                   >
-                    <span className=" text-left p-0 m-0">Deactivate</span>
+                    <span className=" text-left p-0 m-0">Delete user</span>
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -316,8 +267,8 @@ const columns: ColumnDef<User>[] = [
                       Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      The user will not be able to access his/her account while
-                      deactivated
+                      This action cannot be undone. This will permanently delete
+                      your account and remove your data from our servers.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -334,142 +285,118 @@ const columns: ColumnDef<User>[] = [
   },
 ];
 
-export default function DataTableDemo() {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+const DataTableDemo: React.FC = () => {
+  const [loading, setLoading] = React.useState(true);
+  const [users, setUsers] = React.useState<UserData[]>([]);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
-    data,
+    data: users,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
-      sorting,
-      columnFilters,
       columnVisibility,
-      rowSelection,
+      columnFilters,
+      sorting,
     },
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
+  React.useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await getUsers();
+        setUsers(response);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <div className="w-full">
-      <div className="flex items-center mb-4">
+    <>
+      <div className="flex items-center">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Search users..."
+          value={
+            (table.getColumn("first_name")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("first_name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+      {loading ? (
+        <>
+          <Skeleton className="w-full h-40 mb-4" />
+        </>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
-}
+};
+
+export default DataTableDemo;

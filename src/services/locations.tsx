@@ -42,7 +42,7 @@ export async function readLocations(): Promise<LocationModel[] | string> {
 // Read Location by ID
 export async function readLocationById(
   locationId: number
-): Promise<LocationModel | string> {
+): Promise<LocationModel | null> {
   try {
     const { data, error } = await supabase
       .from("location")
@@ -51,41 +51,50 @@ export async function readLocationById(
       .maybeSingle();
     if (error) {
       console.error("Database read error:", error);
-      return `Error reading location: ${error.message}`;
+      return null;
     }
     if (!data) {
-      return "Location not found.";
+      return null;
     }
     return data;
   } catch (error) {
     console.error("Unexpected error:", error);
-    return "An unexpected error occurred. Please try again later.";
+    return null;
   }
 }
 
-// Update a Location
 export async function updateLocation(
   location_id: number,
   updates: Partial<LocationModel>
 ): Promise<LocationModel | string> {
   try {
+    // Perform the update operation
     const { data, error } = await supabase
       .from("location")
       .update(updates)
       .eq("location_id", location_id)
       .select()
       .maybeSingle();
+
+    // Check if there was an error in the update operation
     if (error) {
       console.error("Database update error:", error);
       return `Error updating location: ${error.message}`;
     }
+
+    // Check if data is null, which means no record was found
+    if (!data) {
+      return "Location not found.";
+    }
+
+    // Return the updated data
     return data;
   } catch (error) {
+    // Log unexpected errors
     console.error("Unexpected error:", error);
     return "An unexpected error occurred. Please try again later.";
   }
 }
-
 // Delete a Location
 export async function deleteLocation(location_id: number): Promise<string> {
   try {

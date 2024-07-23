@@ -1,4 +1,3 @@
-// signup.tsx
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-import { signUp } from "@/services/auth";
+import { createUser } from "@/services/auth";
 
 const FormSchema = z.object({
   first_name: z.string().min(2, {
@@ -40,6 +39,9 @@ const FormSchema = z.object({
   password: z.string().min(6, {
     message: "Password must be at least 6 characters.",
   }),
+  role: z.enum(["player", "coach"], {
+    required_error: "Role is required",
+  }),
 });
 
 export default function InputForm() {
@@ -51,21 +53,25 @@ export default function InputForm() {
       email: "",
       phone_number: "",
       password: "",
+      role: "player",
     },
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
-      const userData = await signUp(
-        `${data.first_name} ${data.last_name}`,
+      const userData = await createUser(
+        data.first_name,
+        data.last_name,
         data.email,
-        data.password
+        data.password,
+        data.role,
+        data.phone_number
       );
-
       toast({
         title: "Success",
         description: "User data has been saved.",
       });
+      form.reset();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -151,14 +157,14 @@ export default function InputForm() {
                 </FormItem>
               )}
             />
-            {/* <FormField
+            <FormField
               control={form.control}
-              name=""
+              name="role"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
                   <FormControl>
-                    <Select {...field}>
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Role" />
                       </SelectTrigger>
@@ -170,7 +176,7 @@ export default function InputForm() {
                   </FormControl>
                 </FormItem>
               )}
-            /> */}
+            />
             <Button type="submit" className="w-full">
               Submit
             </Button>

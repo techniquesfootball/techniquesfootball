@@ -6,7 +6,7 @@ interface LocationModel {
   email: string;
   phone_number: string;
   surface_type: string;
-  lighting: string;
-  parking: string;
+  lighting: number;
+  parking: number;
   description: string;
 }

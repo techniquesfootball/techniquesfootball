@@ -2,14 +2,13 @@
 import { createClient } from "@/utils/supabase/server";
 
 const supabase = createClient();
-interface Schedule {
-  id: number;
-  location_id: number;
-  team_a: number;
-  team_b: number;
-  status: string;
+
+type Schedule = {
+  schedule_id: string;
+  team_a: string;
+  team_b: string;
   date_and_time: string;
-}
+};
 
 // Create (Insert Schedule)
 export async function createSchedule(
@@ -42,18 +41,17 @@ export async function createSchedule(
 }
 
 // Read (Fetch Records)
-export async function getSchedules(schedule_id?: number) {
+export async function getSchedules(
+  location_id?: number
+): Promise<Schedule[] | string> {
   try {
     const query = supabase.from("schedule").select("*");
-
-    if (schedule_id) {
-      query.eq("scheduleId", schedule_id);
-    }
-
     const { data, error } = await query;
     if (error) {
       return `Error fetching schedules: ${error.message}`;
     }
+    console.log("ASadsa");
+    console.log(data);
     return data;
   } catch (error) {
     throw error;

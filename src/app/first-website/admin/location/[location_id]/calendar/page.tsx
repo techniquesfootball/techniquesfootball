@@ -31,14 +31,13 @@ import {
 import { TimePickerDemo } from "@/components/widget/datetimepicker/time-picker-demo";
 import { createTeamsAndSchedule } from "@/services/team";
 import { toast } from "@/components/ui/use-toast";
+import { getSchedules } from "@/services/schedule";
 
 type Schedule = {
-  [key: string]: string[];
-};
-
-const schedule: Schedule = {
-  "2024-07-01": ["Game 1: Team A vs Team B", "Game 2: Team C vs Team D"],
-  "2024-07-02": ["Game 3: Team E vs Team F", "Game 4: Team G vs Team H"],
+  schedule_id: string;
+  team_a: string;
+  team_b: string;
+  date_and_time: string;
 };
 
 export default function Page({ params }: { params: { location_id: string } }) {
@@ -46,6 +45,24 @@ export default function Page({ params }: { params: { location_id: string } }) {
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
   const [teamDetails, setTeamDetails] = useState<{ [key: string]: string }>({});
   const [open, setOpen] = useState(false);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+
+  const fetchSchedules = async () => {
+    const result = await getSchedules(parseInt(params.location_id));
+    if (typeof result === "string") {
+      console.error(result);
+      toast({
+        title: "Error",
+        description: result,
+      });
+    } else {
+      setSchedules(result);
+    }
+  };
+
+  useEffect(() => {
+    fetchSchedules();
+  }, [params.location_id]);
 
   const handleSelect = (newDay: Date | undefined) => {
     if (!newDay) return;
@@ -62,9 +79,15 @@ export default function Page({ params }: { params: { location_id: string } }) {
   useEffect(() => {
     if (date) {
       const formattedDate = date.toISOString().split("T")[0];
-      setSelectedGames(schedule[formattedDate] || []);
+      const games = schedules
+        .filter((schedule) => schedule.date_and_time.startsWith(formattedDate))
+        .map(
+          (schedule) =>
+            `Game: Team ${schedule.team_a} vs Team ${schedule.team_b}`
+        );
+      setSelectedGames(games);
     }
-  }, [date]);
+  }, [date, schedules]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -98,6 +121,7 @@ export default function Page({ params }: { params: { location_id: string } }) {
           title: "Success",
           description: "Teams and schedule created successfully!",
         });
+        location.reload();
         setDate(undefined);
         setTeamDetails({});
       }
@@ -459,7 +483,6 @@ export default function Page({ params }: { params: { location_id: string } }) {
           )}
         </div>
       </div>
-      ;
     </>
   );
 }
