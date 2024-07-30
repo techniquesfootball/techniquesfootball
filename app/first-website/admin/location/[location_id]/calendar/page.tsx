@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/accordion";
 import { Loader2 } from "lucide-react";
 
-export const Icons = {
+const Icons = {
   spinner: Loader2,
 };
 

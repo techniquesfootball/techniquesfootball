@@ -31,7 +31,7 @@ export async function createUser(
     if (error) {
     } else {
       const { data: userData, error: dbInsertError } = await supabase
-        .from("users")
+        .from("profiles")
         .insert({
           first_name,
           last_name,
@@ -57,7 +57,7 @@ export async function getUsers() {
   try {
     const supabase = createClient();
     const { data: users, error: dbReadError } = await supabase
-      .from("users")
+      .from("profiles")
       .select("*");
 
     if (dbReadError) {
@@ -99,7 +99,7 @@ export async function updateUser(
     });
 
     const { data: userData, error: dbUpdateError } = await supabase
-      .from("users")
+      .from("profiles")
       .update(updates)
       .eq("id", id)
       .select()
@@ -120,7 +120,7 @@ export async function deleteUser(id: number) {
   try {
     const supabase = createClient();
     const { data, error: dbDeleteError } = await supabase
-      .from("users")
+      .from("profiles")
       .delete()
       .eq("id", id);
 

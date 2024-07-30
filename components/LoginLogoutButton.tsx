@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const LoginButton = () => {
   const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start with true to show the skeleton initially
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -19,10 +19,10 @@ const LoginButton = () => {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
-      setIsLoading(false); // Set loading to false after fetching user
+      setIsLoading(false);
     };
     fetchUser();
-  }, []);
+  });
 
   const handleLogout = async () => {
     setIsLoggingOut(true);

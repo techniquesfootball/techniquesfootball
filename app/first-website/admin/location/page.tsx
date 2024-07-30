@@ -66,7 +66,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 
-export const Icons = {
+const Icons = {
   spinner: Loader2,
 };
 
@@ -173,8 +173,8 @@ export default function DataTableDemo() {
                     <DialogHeader>
                       <DialogTitle>Edit Location</DialogTitle>
                       <DialogDescription>
-                        Fill all the required fields. Click save when you're
-                        done.
+                        Fill all the required fields. Click save when
+                        you&apos;re done.
                       </DialogDescription>
                     </DialogHeader>
                     <form onSubmit={handleSubmit(onSubmit)}>
@@ -426,7 +426,7 @@ export default function DataTableDemo() {
             <DialogHeader>
               <DialogTitle>Add Location</DialogTitle>
               <DialogDescription>
-                Fill all the required fields. Click save when you're done.
+                Fill all the required fields. Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)}>

@@ -7,7 +7,7 @@ const LogoutPage = () => {
   const router = useRouter();
   useEffect(() => {
     setTimeout(() => router.push("/first-website"), 2000);
-  }, []);
+  });
   return (
     <div>
       <div className="App">

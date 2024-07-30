@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  Home,
-  LineChart,
-  Menu,
-  Package,
-  Package2,
-  ShoppingCart,
-  Users,
-} from "lucide-react";
+import { Home, Menu, Package2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LoginButton from "@/components/LoginLogoutButton";
