@@ -15,7 +15,7 @@ import { login } from "@/lib/auth-actions";
 import SignInWithGoogleButton from "./SignInWithGoogleButton";
 import { Loader2 } from "lucide-react";
 
-export const Icons = {
+const Icons = {
   spinner: Loader2,
 };
 
@@ -25,10 +25,8 @@ export function LoginForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-
     const formData = new FormData(event.currentTarget);
     await login(formData);
-
     setIsLoading(false);
   };
 
@@ -45,13 +43,7 @@ export function LoginForm() {
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
+              <Input id="email" name="email" type="email" required />
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">

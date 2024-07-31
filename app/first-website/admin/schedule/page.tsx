@@ -252,11 +252,11 @@ export default function DataTableDemo() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await getSchedules(); // Adjust if you need to pass a location_id
+        const result = await getSchedules();
         if (Array.isArray(result)) {
           setData(result);
         } else {
-          console.error("Error fetching schedules:", result); // Handle error message
+          console.error("Error fetching schedules:", result);
         }
       } catch (error) {
         console.error("Error fetching schedules:", error);

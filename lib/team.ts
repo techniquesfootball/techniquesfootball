@@ -76,15 +76,6 @@ export async function createTeam(
     const { data, error } = await supabase
       .from("team")
       .insert({
-        defender_1: null,
-        defender_2: null,
-        defender_3: null,
-        defender_4: null,
-        mid_fielder_1: null,
-        mid_fielder_2: null,
-        mid_fielder_3: null,
-        striker_1: null,
-        striker_2: null,
         defender_1_price:
           teamNumber == "A"
             ? teamDetails.defender1_teamA_price
@@ -127,7 +118,7 @@ export async function createTeam(
 
     if (error) {
       return `Error creating team: ${error.message}`;
-    }
+    } 
     return data as Team;
   } catch (error) {
     throw error;
@@ -152,6 +143,48 @@ export async function getTeams(teamId?: number) {
     throw error;
   }
 }
+
+// Update Single Player
+export async function updatePlayerInTeam(
+  teamId: number,
+  position: string,
+  playerId: string
+) {
+  // Define a mapping for positions to their respective fields
+  const positionFields: { [key: string]: string } = {
+    defender_1: 'defender_1',
+    defender_2: 'defender_2',
+    defender_3: 'defender_3',
+    defender_4: 'defender_4',
+    mid_fielder_1: 'mid_fielder_1',
+    mid_fielder_2: 'mid_fielder_2',
+    mid_fielder_3: 'mid_fielder_3',
+    striker_1: 'striker_1',
+    striker_2: 'striker_2',
+  };
+
+  const field = positionFields[position];
+  if (!field) {
+    throw new Error(`Invalid position: ${position}`);
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("team")
+      .update({ [field]: playerId })
+      .match({ team_id: teamId })
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Error updating player: ${error.message}`);
+    }
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 
 // Update (Modify Team)
 export async function updateTeam(

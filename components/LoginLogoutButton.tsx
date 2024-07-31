@@ -37,15 +37,24 @@ const LoginButton = () => {
 
   if (user) {
     return (
-      <Button onClick={handleLogout} disabled={isLoggingOut}>
-        {isLoggingOut ? "Logging out..." : "Log out"}
-      </Button>
+      <>
+        <Button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          size="sm"
+          className="text-xs"
+        >
+          {isLoggingOut ? "Logging out..." : "Log out"}
+        </Button>
+      </>
     );
   }
 
   return (
     <Button
       variant="outline"
+      size="sm"
+      className="text-xs"
       onClick={() => {
         router.push("/first-website/login");
       }}

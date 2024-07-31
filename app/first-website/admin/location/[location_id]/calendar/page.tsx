@@ -6,6 +6,7 @@ import {
   ChevronLeftIcon,
   ExclamationTriangleIcon,
 } from "@radix-ui/react-icons";
+import moment from "moment";
 import { Calendar as CalendarIcon } from "lucide-react";
 import {
   Dialog,
@@ -39,6 +40,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Loader2 } from "lucide-react";
+import Loader from "@/components/ui/loader";
 
 const Icons = {
   spinner: Loader2,
@@ -66,7 +68,6 @@ export default function Page({ params }: { params: { location_id: string } }) {
         setSchedules(result);
       }
     } catch (e) {
-      console.log(e);
       setLoading(true);
     } finally {
       setLoading(true);
@@ -91,7 +92,9 @@ export default function Page({ params }: { params: { location_id: string } }) {
 
   useEffect(() => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
+      const momentDate = moment(date).add(1, "day");
+      const dateObject = momentDate.toDate();
+      const formattedDate = dateObject.toISOString().split("T")[0];
       const games = schedules
         .filter((schedule) => schedule.date_and_time.startsWith(formattedDate))
         .map((schedule) => schedule);
@@ -121,7 +124,9 @@ export default function Page({ params }: { params: { location_id: string } }) {
       });
       return;
     }
-    const dateAndTime = date.toISOString();
+    const momentDate = moment(date).add(1, "day");
+    const dateObject = momentDate.toDate();
+    const dateAndTime = dateObject.toISOString();
     try {
       const result = await createTeamsAndSchedule(
         parseInt(params.location_id as string),
@@ -143,7 +148,7 @@ export default function Page({ params }: { params: { location_id: string } }) {
           location.reload();
           setDate(undefined);
           setTeamDetails({});
-        }, 1000); // 2000 milliseconds = 2 seconds
+        }, 1000);
       }
     } catch (error) {
       console.error("Error creating teams and schedule:", error);
@@ -214,7 +219,7 @@ export default function Page({ params }: { params: { location_id: string } }) {
                       onChange={handleInputChange}
                       className="w-2/3"
                       type="number"
-                      max-length="3" // Limit the value to 999
+                      max-length="3"
                     />
                   </div>
                   <div className="flex items-center gap-4">
@@ -591,7 +596,6 @@ export default function Page({ params }: { params: { location_id: string } }) {
                               fullName={game.team_a_striker_2_name}
                               position={"Striker 2"}
                             />
-
                             {/* Add more PlayerCard components for Team A */}
                           </div>
                           {/* VS */}
@@ -682,7 +686,7 @@ export default function Page({ params }: { params: { location_id: string } }) {
           </div>
         </div>
       ) : (
-        <div>loading</div>
+        <Loader />
       )}
     </>
   );
@@ -695,12 +699,7 @@ interface PlayerCardProps {
   position: string;
 }
 
-const PlayerCard: React.FC<PlayerCardProps> = ({
-  avatarSrc,
-  fallback,
-  fullName,
-  position,
-}) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({ fullName, position }) => {
   return (
     <div className="flex items-center gap-4">
       <Avatar className="hidden sm:flex h-9 w-9">

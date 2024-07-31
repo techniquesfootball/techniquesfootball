@@ -1,5 +1,4 @@
 import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,7 +10,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signup } from "@/lib/auth-actions";
-import { Loader2 } from "lucide-react";
 
 export function SignUpForm() {
   return (
@@ -28,32 +26,16 @@ export function SignUpForm() {
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="first-name">First name</Label>
-                <Input
-                  name="first-name"
-                  id="first-name"
-                  placeholder="Max"
-                  required
-                />
+                <Input name="first-name" id="first-name" required />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="last-name">Last name</Label>
-                <Input
-                  name="last-name"
-                  id="last-name"
-                  placeholder="Robinson"
-                  required
-                />
+                <Input name="last-name" id="last-name" required />
               </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                name="email"
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
+              <Input name="email" id="email" type="email" required />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
