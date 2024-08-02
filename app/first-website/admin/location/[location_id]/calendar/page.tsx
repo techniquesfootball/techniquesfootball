@@ -688,6 +688,10 @@ export default function Page({ params }: { params: { location_id: string } }) {
   );
 }
 
+export function generateStaticParams() {
+  return [{ location_id: "test" }];
+}
+
 interface PlayerCardProps {
   avatarSrc: string;
   fallback: string;
