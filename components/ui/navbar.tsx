@@ -1,4 +1,3 @@
-// components/Navbar.tsx
 "use client";
 import Link from "next/link";
 import * as React from "react";
@@ -13,22 +12,16 @@ type MenuItem = {
 type NavbarProps = {
   menus: MenuItem[];
   logoText?: string;
-  loginPath?: string;
 };
 
-export default function Navbar({
-  menus,
-  logoText = "Logo",
-  loginPath = "/first-website/login",
-}: NavbarProps) {
+export default function Navbar({ menus, logoText = "Logo" }: NavbarProps) {
   const [state, setState] = React.useState(false);
-
   return (
     <nav className="bg-white w-full md:border-0">
       <div className="items-center px-4 max-w-screen-xl mx-auto md:flex md:px-8">
         <div className="flex items-center justify-between py-3 md:py-5 md:block">
           <Link href="/">
-            <h1 className="text-3xl font-bold">{logoText}</h1>
+            <h1 className="text-lg font-bold">{logoText}</h1>
           </Link>
           <div className="md:hidden">
             <button

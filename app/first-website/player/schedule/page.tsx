@@ -1,17 +1,14 @@
 "use client";
-import { CardContent } from "@/components/ui/card";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   ChevronLeftIcon,
   ExclamationTriangleIcon,
 } from "@radix-ui/react-icons";
+import { CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import { getAllSchedules, ScheduleDetails } from "@/lib/schedule";
-import { updatePlayerInTeam } from "@/lib/team";
 import {
   Accordion,
   AccordionContent,
@@ -19,6 +16,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Loader from "@/components/ui/loader";
+import { toast } from "@/components/ui/use-toast";
+import { getAllSchedules, ScheduleDetails } from "@/lib/schedule";
+import { updatePlayerInTeam } from "@/lib/team";
 
 export default function Page({ params }: { params: { location_id: string } }) {
   const [date, setDate] = useState<Date>();
@@ -282,14 +282,6 @@ export default function Page({ params }: { params: { location_id: string } }) {
       )}
     </>
   );
-}
-
-interface PlayerCardProps {
-  fullName: string;
-  position: string;
-  positionText: string;
-  teamId: string;
-  onClick: (position: string, teamId: string) => void;
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({

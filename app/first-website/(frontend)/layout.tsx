@@ -1,4 +1,4 @@
-import Navbar from "./components/navbar";
+import Navbar from "@/components/ui/navbar";
 
 const menus = [
   { title: "Home", path: "/first-website" },
@@ -12,11 +12,7 @@ const menus = [
 export default function Page({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar
-        menus={menus}
-        logoText="My Site"
-        loginPath="/first-website/login"
-      />
+      <Navbar menus={menus} logoText="Techniques football" />
       <main className="relative flex flex-grow">{children}</main>
     </div>
   );

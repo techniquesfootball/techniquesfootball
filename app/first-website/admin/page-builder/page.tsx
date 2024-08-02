@@ -17,11 +17,7 @@ import {
   PageBuilder,
   getValuesOfPageBuilder,
 } from "@/lib/page-builder";
-import { Loader2 } from "lucide-react";
-
-const Icons = {
-  spinner: Loader2,
-};
+import CircularProgressBar from "@/components/ui/circular-progress-bar";
 
 export default function Page() {
   const [formValues, setFormValues] = React.useState<PageBuilder>({
@@ -147,7 +143,7 @@ export default function Page() {
         <Button onClick={handleSubmit} disabled={loading}>
           {loading ? (
             <span className="flex items-center">
-              <Icons.spinner className="h-4 w-4 animate-spin mr-2" />
+              <CircularProgressBar size={24} />
               Saving...
             </span>
           ) : (

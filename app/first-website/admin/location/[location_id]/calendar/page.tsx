@@ -1,13 +1,15 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CardContent } from "@/components/ui/card";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import moment from "moment";
+import { add, format } from "date-fns";
 import {
   ChevronLeftIcon,
   ExclamationTriangleIcon,
 } from "@radix-ui/react-icons";
-import moment from "moment";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -19,10 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { add, format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -30,21 +29,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TimePickerDemo } from "@/components/datetimepicker/time-picker-demo";
-import { createTeamsAndSchedule } from "@/lib/team";
 import { toast } from "@/components/ui/use-toast";
-import { getSchedules, ScheduleDetails } from "@/lib/schedule";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Loader2 } from "lucide-react";
 import Loader from "@/components/ui/loader";
-
-const Icons = {
-  spinner: Loader2,
-};
+import { cn } from "@/lib/utils";
+import { createTeamsAndSchedule } from "@/lib/team";
+import { getSchedules, ScheduleDetails } from "@/lib/schedule";
+import CircularProgressBar from "@/components/ui/circular-progress-bar";
 
 export default function Page({ params }: { params: { location_id: string } }) {
   const [date, setDate] = useState<Date>();
@@ -499,7 +495,7 @@ export default function Page({ params }: { params: { location_id: string } }) {
                   <Button onClick={handleSave} disabled={isSubmitting}>
                     {isSubmitting ? (
                       <span className="flex items-center space-x-2">
-                        <Icons.spinner className="h-4 w-4 animate-spin" />
+                        <CircularProgressBar size={24} />
                         <span>Saving...</span>
                       </span>
                     ) : (

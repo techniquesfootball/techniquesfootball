@@ -54,14 +54,12 @@ export async function signup(formData: FormData) {
 
   // type-casting here for convenience
   // in practice, you should validate your inputs
-  const firstName = formData.get("first-name") as string;
-  const lastName = formData.get("last-name") as string;
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     options: {
       data: {
-        full_name: `${firstName + " " + lastName}`,
+        full_name: formData.get("fullname") as string,
         email: formData.get("email") as string,
       },
     },

@@ -1,5 +1,9 @@
 "use client";
 import * as React from "react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { ChevronDownIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
@@ -41,7 +45,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -53,22 +56,15 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { z } from "zod";
+import { toast } from "@/components/ui/use-toast";
 import {
   createLocation,
   readLocations,
   readLocationById,
   updateLocation,
 } from "@/lib/locations";
-import { toast } from "@/components/ui/use-toast";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2 } from "lucide-react";
-
-const Icons = {
-  spinner: Loader2,
-};
+import CircularProgressBar from "@/components/ui/circular-progress-bar";
+import Loader from "@/components/ui/loader";
 
 export default function DataTableDemo() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -255,7 +251,7 @@ export default function DataTableDemo() {
                         <Button type="submit" disabled={isSubmitting}>
                           {isSubmitting ? (
                             <span className="flex items-center space-x-2">
-                              <Icons.spinner className="h-4 w-4 animate-spin" />
+                              <CircularProgressBar size={24} />
                               <span>Saving...</span>
                             </span>
                           ) : (
@@ -408,221 +404,230 @@ export default function DataTableDemo() {
   };
 
   return (
-    <div className="w-full">
-      <div className="flex items-center mb-4">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              className="mr-2"
-              onClick={() => {
-                resetFields();
-                setIsDialogOpen(true);
-              }}
-            >
-              Add Location
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="w-full max-w-lg mx-auto p-6">
-            <DialogHeader>
-              <DialogTitle>Add Location</DialogTitle>
-              <DialogDescription>
-                Fill all the required fields. Click save when you&apos;re done.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                  <Label htmlFor="contact-info" className="text-right">
-                    Contact Information
-                  </Label>
-                  <div className="col-span-2 grid gap-2">
-                    <Input
-                      {...register("contact_person")}
-                      placeholder="Contact Person"
-                    />
-                    <Input
-                      {...register("email")}
-                      type="email"
-                      placeholder="Email"
-                    />
-                    <Input
-                      {...register("phone_number")}
-                      type="tel"
-                      placeholder="Phone Number"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                  <Label htmlFor="surface-type" className="text-right">
-                    Surface Type
-                  </Label>
-                  <Select value={surfaceType} onValueChange={setSurfaceType}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <SelectValue placeholder="Select a type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="grass">Grass</SelectItem>
-                        <SelectItem value="turf">Turf</SelectItem>
-                        <SelectItem value="indoor">Indoor</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                  <Label htmlFor="lighting" className="text-right">
-                    Lighting
-                  </Label>
-                  <Switch
-                    id="lighting"
-                    checked={lighting}
-                    onCheckedChange={setLighting}
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                  <Label htmlFor="parking" className="text-right">
-                    Parking Availability
-                  </Label>
-                  <Switch
-                    id="parking"
-                    checked={parking}
-                    onCheckedChange={setParking}
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-                  <Label htmlFor="description" className="text-right">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    {...register("description")}
-                    className="w-full sm:col-span-2"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <span className="flex items-center space-x-2">
-                      <Icons.spinner className="h-4 w-4 animate-spin" />
-                      <span>Saving...</span>
-                    </span>
-                  ) : (
-                    "Save"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-        <Input
-          placeholder="Filter name..."
-          value={
-            (table.getColumn("contact_person")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("contact_person")
-              ?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm mr-2"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="w-full">
+          <div className="flex items-center mb-4">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  className="mr-2"
+                  onClick={() => {
+                    resetFields();
+                    setIsDialogOpen(true);
+                  }}
                 >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
-        {loading ? (
-          <Skeleton className="h-52 w-full" />
-        ) : (
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
+                  Add Location
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-full max-w-lg mx-auto p-6">
+                <DialogHeader>
+                  <DialogTitle>Add Location</DialogTitle>
+                  <DialogDescription>
+                    Fill all the required fields. Click save when you&apos;re
+                    done.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                      <Label htmlFor="contact-info" className="text-right">
+                        Contact Information
+                      </Label>
+                      <div className="col-span-2 grid gap-2">
+                        <Input
+                          {...register("contact_person")}
+                          placeholder="Contact Person"
+                        />
+                        <Input
+                          {...register("email")}
+                          type="email"
+                          placeholder="Email"
+                        />
+                        <Input
+                          {...register("phone_number")}
+                          type="tel"
+                          placeholder="Phone Number"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                      <Label htmlFor="surface-type" className="text-right">
+                        Surface Type
+                      </Label>
+                      <Select
+                        value={surfaceType}
+                        onValueChange={setSurfaceType}
+                      >
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                          <SelectValue placeholder="Select a type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="grass">Grass</SelectItem>
+                            <SelectItem value="turf">Turf</SelectItem>
+                            <SelectItem value="indoor">Indoor</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                      <Label htmlFor="lighting" className="text-right">
+                        Lighting
+                      </Label>
+                      <Switch
+                        id="lighting"
+                        checked={lighting}
+                        onCheckedChange={setLighting}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                      <Label htmlFor="parking" className="text-right">
+                        Parking Availability
+                      </Label>
+                      <Switch
+                        id="parking"
+                        checked={parking}
+                        onCheckedChange={setParking}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
+                      <Label htmlFor="description" className="text-right">
+                        Description
+                      </Label>
+                      <Textarea
+                        id="description"
+                        {...register("description")}
+                        className="w-full sm:col-span-2"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? (
+                        <span className="flex items-center space-x-2">
+                          <CircularProgressBar size={24} />
+                          <span>Saving...</span>
+                        </span>
+                      ) : (
+                        "Save"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Input
+              placeholder="Filter name..."
+              value={
+                (table
+                  .getColumn("contact_person")
+                  ?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table
+                  .getColumn("contact_person")
+                  ?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm mr-2"
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
                   ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
                     ))}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

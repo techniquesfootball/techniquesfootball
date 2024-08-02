@@ -62,41 +62,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+import Loader from "@/components/ui/loader";
 
 const columns: ColumnDef<UserData>[] = [
   {
-    accessorKey: "user_id",
-    header: "ID",
+    accessorKey: "full_name",
+    header: "Full Name",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("user_id")}</div>
-    ),
-  },
-  {
-    accessorKey: "first_name",
-    header: "First Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("first_name")}</div>
-    ),
-  },
-  {
-    accessorKey: "last_name",
-    header: "Last Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("last_name")}</div>
+      <div className="capitalize">{row.getValue("full_name")}</div>
     ),
   },
   {
     accessorKey: "email",
     header: "Email",
     cell: ({ row }) => <div>{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "phone_number",
-    header: "Phone Number",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("phone_number")}</div>
-    ),
   },
   {
     accessorKey: "role",
@@ -329,70 +308,72 @@ const DataTableDemo: React.FC = () => {
 
   return (
     <>
-      <div className="flex items-center">
-        <Input
-          placeholder="Search users..."
-          value={
-            (table.getColumn("first_name")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("first_name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-      </div>
       {loading ? (
         <>
-          <Skeleton className="w-full h-40 mb-4" />
+          <Loader />
         </>
       ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+        <>
+          <div className="flex items-center">
+            <Input
+              placeholder="Search users..."
+              value={
+                (table.getColumn("full_name")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("full_name")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+          </div>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </>
   );
