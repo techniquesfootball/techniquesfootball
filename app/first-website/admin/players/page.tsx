@@ -68,238 +68,6 @@ type UserProfile = {
   role: string;
 };
 
-const columns: ColumnDef<UserData>[] = [
-  {
-    accessorKey: "full_name",
-    header: "Full Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("full_name")}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: () => <div className="text-center">Email</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("email")}</div>
-    ),
-  },
-  {
-    accessorKey: "phone_number",
-    header: () => <div className="text-center">Phone Number</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("phone_number")}</div>
-    ),
-  },
-  {
-    accessorKey: "role",
-    header: () => <div className="text-center">Role</div>,
-    cell: ({ row }) => (
-      <div className="capitalize text-center">{row.getValue("role")}</div>
-    ),
-  },
-  {
-    id: "actions",
-    header: () => <div className="text-center">Actions</div>,
-    enableHiding: false,
-    cell: ({ row }) => {
-      const [selectedUserProfile, setSelectedUserProfile] =
-        React.useState<UserProfile | null>(null);
-      const [loadingProfile, setLoadingProfile] = React.useState(false);
-      const fetchUserProfile = async (userId: number) => {
-        setLoadingProfile(true);
-        try {
-          const profile = await getUserById(userId);
-          setSelectedUserProfile(profile);
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-        } finally {
-          setLoadingProfile(false);
-        }
-      };
-
-      return (
-        <div className="flex justify-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center">
-              <DropdownMenuLabel className="text-center">
-                Actions
-              </DropdownMenuLabel>
-              <div className="flex flex-col">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="font-normal content-start!"
-                    >
-                      <span className=" text-left p-0 m-0">
-                        Booking History
-                      </span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className=" max-w-lg mx-auto p-6">
-                    <DialogHeader>
-                      <DialogTitle>Booking History</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4"></div>
-                  </DialogContent>
-                </Dialog>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="font-normal content-start!"
-                    >
-                      <span className="text-left p-0 m-0">Send message</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-lg mx-auto p-6">
-                    <DialogHeader>
-                      <DialogTitle>Send Message</DialogTitle>
-                      <DialogDescription>
-                        This will be sent to the users email and messages.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <Textarea placeholder="Type your message here." />
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit">Save</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="font-normal content-start!"
-                      onClick={() => fetchUserProfile(row.original.id)}
-                    >
-                      <span className=" text-left p-0 m-0">View profile</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className=" max-w-lg mx-auto p-6">
-                    {loadingProfile ? (
-                      <div className="h-36">
-                        <Loader />
-                      </div>
-                    ) : selectedUserProfile ? (
-                      <>
-                        <DialogHeader>
-                          <DialogTitle>View profile</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <CardHeader className="flex flex-row items-start bg-muted/50">
-                            <div className="grid gap-0.5 flex-grow">
-                              <CardTitle className="group flex items-center gap-2 text-lg">
-                                {selectedUserProfile.full_name}
-                              </CardTitle>
-                              <CardDescription>Player</CardDescription>
-                            </div>
-                            <Avatar className="ml-auto">
-                              <AvatarImage
-                                src="https://github.com/shadcn.png"
-                                alt={selectedUserProfile.full_name}
-                              />
-                              <AvatarFallback>DB</AvatarFallback>
-                            </Avatar>
-                          </CardHeader>
-                          <CardContent className="p-6 text-sm">
-                            <div className="grid gap-3">
-                              <div className="font-semibold">
-                                User Information
-                              </div>
-                              <dl className="grid gap-3">
-                                <div className="flex items-center justify-between">
-                                  <dt className="text-muted-foreground">
-                                    User
-                                  </dt>
-                                  <dd>{selectedUserProfile.full_name}</dd>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <dt className="text-muted-foreground">
-                                    Email
-                                  </dt>
-                                  <dd>
-                                    <a
-                                      href={`mailto:${selectedUserProfile.email}`}
-                                    >
-                                      {selectedUserProfile.email}
-                                    </a>
-                                  </dd>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <dt className="text-muted-foreground">
-                                    Phone
-                                  </dt>
-                                  <dd>
-                                    <a>0000000000000</a>
-                                  </dd>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <dt className="text-muted-foreground">
-                                    Address
-                                  </dt>
-                                  <dd>00000000000000</dd>
-                                </div>
-                              </dl>
-                            </div>
-                          </CardContent>
-                          <CardFooter className="flex flex-row items-center border-t bg-muted/50 px-6 py-3">
-                            <div className="text-xs text-muted-foreground">
-                              Updated{" "}
-                              <time dateTime="2023-11-23">
-                                November 23, 2023
-                              </time>
-                            </div>
-                          </CardFooter>
-                        </div>
-                      </>
-                    ) : (
-                      <div>No profile data available.</div>
-                    )}
-                  </DialogContent>
-                </Dialog>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="font-normal content-start!"
-                    >
-                      <span className="text-left p-0 m-0">Delete user</span>
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently
-                        delete your account and remove your data from our
-                        servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction>Continue</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
-];
-
 const DataTableDemo: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [users, setUsers] = React.useState<UserData[]>([]);
@@ -309,10 +77,153 @@ const DataTableDemo: React.FC = () => {
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [selectedUserProfile, setSelectedUserProfile] =
+    React.useState<UserProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = React.useState(false);
+
+  const fetchUserProfile = async (userId: number) => {
+    setLoadingProfile(true);
+    try {
+      const profile = await getUserById(userId);
+      setSelectedUserProfile(profile);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
 
   const table = useReactTable({
     data: users,
-    columns,
+    columns: [
+      {
+        accessorKey: "full_name",
+        header: "Full Name",
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue("full_name")}</div>
+        ),
+      },
+      {
+        accessorKey: "email",
+        header: () => <div className="text-center">Email</div>,
+        cell: ({ row }) => (
+          <div className="text-center">{row.getValue("email")}</div>
+        ),
+      },
+      {
+        accessorKey: "phone_number",
+        header: () => <div className="text-center">Phone Number</div>,
+        cell: ({ row }) => (
+          <div className="text-center">{row.getValue("phone_number")}</div>
+        ),
+      },
+      {
+        accessorKey: "role",
+        header: () => <div className="text-center">Role</div>,
+        cell: ({ row }) => (
+          <div className="capitalize text-center">{row.getValue("role")}</div>
+        ),
+      },
+      {
+        id: "actions",
+        header: () => <div className="text-center">Actions</div>,
+        enableHiding: false,
+        cell: ({ row }) => {
+          const userId = row.original.id;
+
+          return (
+            <div className="flex justify-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <DotsHorizontalIcon className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center">
+                  <DropdownMenuLabel className="text-center">
+                    Actions
+                  </DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="font-normal content-start!"
+                        >
+                          <span className="text-left p-0 m-0">
+                            View profile
+                          </span>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className=" max-w-lg mx-auto p-6">
+                        {loadingProfile ? (
+                          <div className="h-36">
+                            <Loader />
+                          </div>
+                        ) : selectedUserProfile ? (
+                          <>
+                            <DialogHeader>
+                              <DialogTitle>View profile</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <CardHeader className="flex flex-row items-start bg-muted/50">
+                                <div className="grid gap-0.5 flex-grow">
+                                  <CardTitle className="group flex items-center gap-2 text-lg">
+                                    {selectedUserProfile.full_name}
+                                  </CardTitle>
+                                  <CardDescription>Player</CardDescription>
+                                </div>
+                                <Avatar className="ml-auto">
+                                  <AvatarImage
+                                    src="https://github.com/shadcn.png"
+                                    alt={selectedUserProfile.full_name}
+                                  />
+                                  <AvatarFallback>DB</AvatarFallback>
+                                </Avatar>
+                              </CardHeader>
+                              <CardContent className="p-6 text-sm">
+                                <div className="grid gap-3">
+                                  <div className="font-semibold">
+                                    User Information
+                                  </div>
+                                  <dl className="grid gap-3">
+                                    <div className="flex items-center justify-between">
+                                      <dt className="text-muted-foreground">
+                                        User
+                                      </dt>
+                                      <dd>{selectedUserProfile.full_name}</dd>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                      <dt className="text-muted-foreground">
+                                        Email
+                                      </dt>
+                                      <dd>
+                                        <a
+                                          href={`mailto:${selectedUserProfile.email}`}
+                                        >
+                                          {selectedUserProfile.email}
+                                        </a>
+                                      </dd>
+                                    </div>
+                                  </dl>
+                                </div>
+                              </CardContent>
+                            </div>
+                          </>
+                        ) : (
+                          <div>No profile data available.</div>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
     state: {
       columnVisibility,
       columnFilters,
@@ -346,9 +257,7 @@ const DataTableDemo: React.FC = () => {
   return (
     <>
       {loading ? (
-        <>
-          <Loader />
-        </>
+        <Loader />
       ) : (
         <>
           <div className="flex items-center">
@@ -368,18 +277,16 @@ const DataTableDemo: React.FC = () => {
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      );
-                    })}
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    ))}
                   </TableRow>
                 ))}
               </TableHeader>
@@ -400,7 +307,7 @@ const DataTableDemo: React.FC = () => {
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={columns.length}
+                      colSpan={table.getAllColumns().length}
                       className="h-24 text-center"
                     >
                       No results.

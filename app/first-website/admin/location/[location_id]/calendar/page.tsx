@@ -51,27 +51,25 @@ export default function Page({ params }: { params: { location_id: number } }) {
   const [schedules, setSchedules] = useState<ScheduleDetails[]>([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const fetchSchedules = async () => {
-    try {
-      const result = await getSchedules(params.location_id);
-      if (typeof result === "string") {
-        toast({
-          title: "Error",
-          description: result,
-        });
-      } else {
-        setLoading(true);
-        setSchedules(result);
-      }
-    } catch (e) {
-      setLoading(true);
-    } finally {
-      setLoading(true);
-    }
-  };
-
   useEffect(() => {
-    fetchSchedules();
+    const fetchSchedules = async () => {
+      try {
+        const result = await getSchedules(params.location_id);
+        if (typeof result === "string") {
+          toast({
+            title: "Error",
+            description: result,
+          });
+        } else {
+          setLoading(true);
+          setSchedules(result);
+        }
+      } catch (e) {
+        setLoading(true);
+      } finally {
+        setLoading(true);
+      }
+    };
   }, [params.location_id]);
 
   const handleSelect = (newDay: Date | undefined) => {

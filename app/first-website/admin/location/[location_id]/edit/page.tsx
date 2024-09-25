@@ -51,29 +51,27 @@ export default function Page({ params }: { params: { location_id: number } }) {
   });
 
   useEffect(() => {
-    fetchSchedules();
-  }, [params.location_id]);
+    const fetchSchedules = async () => {
+      try {
+        const location = await readLocationById(params.location_id);
 
-  const fetchSchedules = async () => {
-    try {
-      const location = await readLocationById(params.location_id);
-
-      if (typeof location === "string") {
-        toast({
-          title: "Error",
-          description: "Error",
-        });
-        setLoading(false);
-      } else {
-        setEditLocation(location);
+        if (typeof location === "string") {
+          toast({
+            title: "Error",
+            description: "Error",
+          });
+          setLoading(false);
+        } else {
+          setEditLocation(location);
+          setLoading(true);
+        }
+      } catch (e) {
+        setLoading(true);
+      } finally {
         setLoading(true);
       }
-    } catch (e) {
-      setLoading(true);
-    } finally {
-      setLoading(true);
-    }
-  };
+    };
+  }, [params.location_id]);
 
   const resetFields = () => {
     setEditLocation(null);
