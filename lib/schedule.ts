@@ -361,7 +361,6 @@ export async function getAllSchedules(): Promise<ScheduleDetails[] | string> {
       team_b_striker_1_price: schedule.team_b_array.striker_1_price ?? "",
       team_b_striker_2_price: schedule.team_b_array.striker_2_price ?? "",
     }));
-    console.log(transformedData);
     return transformedData;
   } catch (error) {
     throw error;

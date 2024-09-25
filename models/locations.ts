@@ -1,5 +1,6 @@
 interface LocationModel {
-  location_id?: number;
+  location_id: number;
+  location: string;
   longitude: string;
   latitude: string;
   contact_person: string;

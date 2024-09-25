@@ -14,9 +14,10 @@ export async function login(formData: FormData) {
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword(form);
 
   if (authError) {
-    console.error(authError);
+        console.log("asdasdasd");
+
+    console.log(authError);
     redirect("/first-website/error");
-    return;
   }
 
   const userId = authData.user?.id;
@@ -45,15 +46,13 @@ export async function login(formData: FormData) {
       redirect("/first-website/error");
     }
   } else {
+    console.log("Asdasd");
     redirect("/first-website/error");
   }
 }
 
 export async function signup(formData: FormData) {
   const supabase = createClient();
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -61,12 +60,15 @@ export async function signup(formData: FormData) {
       data: {
         full_name: formData.get("fullname") as string,
         email: formData.get("email") as string,
+        phone_number: formData.get("phone_number") as string,
+        role: formData.get("role") as string
       },
     },
   };
 
   const { error } = await supabase.auth.signUp(data);
   if (error) {
+    console.log(error);
     redirect("/first-website/error");
   }
 

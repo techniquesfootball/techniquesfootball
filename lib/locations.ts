@@ -49,6 +49,7 @@ export async function readLocationById(
       .select()
       .eq("location_id", locationId)
       .maybeSingle();
+    
     if (error) {
       console.error("Database read error:", error);
       return null;

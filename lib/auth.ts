@@ -3,10 +3,10 @@ import { createClient } from "@/utils/supabase/server";
 
 // Define the type for the user data
 export type UserData = {
-  first_name?: string;
-  last_name?: string;
+  id: number;
+  full_name?: string;
   email?: string;
-  password?: string;
+  avatar_url?: string;
   role?: string;
   phone_number?: string;
 };
@@ -25,9 +25,6 @@ export async function createUser(
     const { data, error } = await supabase.auth.signInWithOtp({
       email: email,
     });
-    console.log(data);
-    console.log(error);
-
     if (error) {
     } else {
       const { data: userData, error: dbInsertError } = await supabase
@@ -59,12 +56,28 @@ export async function getUsers() {
     const { data: users, error: dbReadError } = await supabase
       .from("profiles")
       .select("*");
-
     if (dbReadError) {
       throw new Error(`Error fetching users: ${dbReadError.message}`);
     }
-
     return users;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Read user by ID
+export async function getUserById(id: number) {
+  try {
+    const supabase = createClient();
+    const { data: user, error: dbReadError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (dbReadError) {
+      throw new Error(`Error fetching user by ID: ${dbReadError.message}`);
+    }
+    return user;
   } catch (error) {
     throw error;
   }
@@ -73,31 +86,25 @@ export async function getUsers() {
 // Update a user
 export async function updateUser(
   id: number,
-  first_name?: string,
-  last_name?: string,
+  full_name?: string,
   email?: string,
-  password?: string,
   role?: string,
   phone_number?: string
 ) {
   try {
     const supabase = createClient();
     const updates: UserData = {
-      first_name,
-      last_name,
+      id,
+      full_name,
       email,
-      password,
       role,
       phone_number,
     };
-
-    // Remove undefined fields
     (Object.keys(updates) as (keyof UserData)[]).forEach((key) => {
       if (updates[key] === undefined) {
         delete updates[key];
       }
     });
-
     const { data: userData, error: dbUpdateError } = await supabase
       .from("profiles")
       .update(updates)
@@ -108,7 +115,6 @@ export async function updateUser(
     if (dbUpdateError) {
       throw new Error(`Update error: ${dbUpdateError.message}`);
     }
-
     return userData;
   } catch (error) {
     throw error;

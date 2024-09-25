@@ -27,7 +27,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex items-center w-full">
-      <Card className="mx-auto max-w-sm w">
+      <Card className="mx-auto max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>

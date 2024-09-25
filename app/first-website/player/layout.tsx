@@ -1,3 +1,5 @@
+"use client";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Home, Menu, Package2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +11,7 @@ export default function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[2200px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -22,14 +25,22 @@ export default function DashboardLayout({
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               <Link
                 href="/first-website/player"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                  pathname == "/first-website/player"
+                    ? "text-white bg-black"
+                    : "text-muted-foreground"
+                }`}
               >
                 <Home className="h-4 w-4" />
                 Dashboard
               </Link>
               <Link
                 href="/first-website/player/schedule"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                  pathname.startsWith("/first-website/player/schedule")
+                    ? "text-white bg-black"
+                    : "text-muted-foreground"
+                }`}
               >
                 <Users className="h-4 w-4" />
                 Schedule

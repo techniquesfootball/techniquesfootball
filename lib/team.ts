@@ -1,6 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
-import { createSchedule } from "./schedule";
+import { ScheduleDetails, createSchedule } from "./schedule";
 
 const supabase = createClient();
 
@@ -29,14 +29,18 @@ interface Team {
 
 type TeamDetails = { [key: string]: string | number };
 
-// Create two teams and a schedule
 export async function createTeamsAndSchedule(
   location_id: number,
   date_and_time: string,
   teamDetails: TeamDetails
 ): Promise<{ teamA: Team; teamB: Team } | string> {
   try {
-    console.log(teamDetails);
+    // Check if the time is already taken
+    const existingSchedule = await getScheduleByLocationAndTime(location_id, date_and_time);
+    if (existingSchedule) {
+      return `The selected time is already taken`;
+    }
+
     // Create the first team
     const teamA = await createTeam(teamDetails, "A");
     if (typeof teamA === "string") {
@@ -65,6 +69,27 @@ export async function createTeamsAndSchedule(
   } catch (error) {
     throw error;
   }
+}
+
+// Example using Supabase
+async function getScheduleByLocationAndTime(location_id: number, date_and_time: string) {
+  const { data, error } = await supabase
+    .from('schedule')
+    .select('*')
+    .eq('location_id', location_id)
+    .eq('date_and_time', date_and_time)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No schedule found
+      return null;
+    } else {
+      return `Error fetching schedule: ${error.message}`;
+    }
+  }
+
+  return data;
 }
 
 // Create (Insert Team)

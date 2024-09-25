@@ -19,6 +19,7 @@ import Loader from "@/components/ui/loader";
 import { toast } from "@/components/ui/use-toast";
 import { getAllSchedules, ScheduleDetails } from "@/lib/schedule";
 import { updatePlayerInTeam } from "@/lib/team";
+import moment from "moment";
 
 export default function Page({ params }: { params: { location_id: string } }) {
   const [date, setDate] = useState<Date>();
@@ -51,7 +52,9 @@ export default function Page({ params }: { params: { location_id: string } }) {
 
   useEffect(() => {
     if (date) {
-      const formattedDate = date.toISOString().split("T")[0];
+      const momentDate = moment(date).add(1, "day");
+      const dateObject = momentDate.toDate();
+      const formattedDate = dateObject.toISOString().split("T")[0];
       const games = schedules
         .filter((schedule) => schedule.date_and_time.startsWith(formattedDate))
         .map((schedule) => schedule);

@@ -41,6 +41,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScheduleDetails, getSchedules } from "@/lib/schedule";
+import Loader from "@/components/ui/loader";
 
 type Player = {
   name: string;
@@ -49,45 +50,118 @@ type Player = {
 
 const columns: ColumnDef<ScheduleDetails>[] = [
   {
-    accessorKey: "matchId",
-    header: "Match ID",
+    accessorKey: "schedule_id",
+    header: "Schedule ID",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("matchId")}</div>
+      <div className="capitalize">{row.getValue("schedule_id")}</div>
     ),
   },
   {
     accessorKey: "location",
-    header: "Location",
+    header: () => <div className="text-center">Location</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("location")}</div>
+      <div className="capitalize text-center">test location</div>
     ),
   },
   {
-    accessorKey: "playerCount",
-    header: () => <div className="text-center">Player Count</div>,
-    cell: ({ row }) => (
-      <div className="capitalize text-center">
-        {row.getValue("playerCount")}
-      </div>
-    ),
+    accessorKey: "team_a_id",
+    header: () => <div className="text-center">Team A</div>,
+    cell: ({ row }) => {
+      interface Team {
+        defender_1: string;
+        defender_2: string;
+        defender_3: string;
+        defender_4: string;
+        mid_fielder_1: string;
+        mid_fielder_2: string;
+        mid_fielder_3: string;
+        striker_1: string;
+        striker_2: string;
+      }
+      interface RowData {
+        team_a_id: Team;
+      }
+      const teamA = row.getValue<RowData["team_a_id"]>("team_a_id");
+      const players = [
+        teamA.defender_1,
+        teamA.defender_2,
+        teamA.defender_3,
+        teamA.defender_4,
+        teamA.mid_fielder_1,
+        teamA.mid_fielder_2,
+        teamA.mid_fielder_3,
+        teamA.striker_1,
+        teamA.striker_2,
+      ];
+      const playerCount = players.filter((player) => !!player).length;
+      return (
+        <div className="capitalize text-center">{`${playerCount}/9 players`}</div>
+      );
+    },
   },
   {
-    accessorKey: "matchDateAndTime",
-    header: () => <div className="text-center">Match date and time</div>,
-    cell: ({ row }) => (
-      <div className="capitalize text-center">
-        {row.getValue("matchDateAndTime")}
-      </div>
-    ),
+    accessorKey: "team_b_id",
+    header: () => <div className="text-center">Team B</div>,
+    cell: ({ row }) => {
+      interface Team {
+        defender_1: string;
+        defender_2: string;
+        defender_3: string;
+        defender_4: string;
+        mid_fielder_1: string;
+        mid_fielder_2: string;
+        mid_fielder_3: string;
+        striker_1: string;
+        striker_2: string;
+      }
+      interface RowData {
+        team_b_id: Team;
+      }
+      const teamB = row.getValue<RowData["team_b_id"]>("team_b_id");
+      const players = [
+        teamB.defender_1,
+        teamB.defender_2,
+        teamB.defender_3,
+        teamB.defender_4,
+        teamB.mid_fielder_1,
+        teamB.mid_fielder_2,
+        teamB.mid_fielder_3,
+        teamB.striker_1,
+        teamB.striker_2,
+      ];
+      const playerCount = players.filter((player) => !!player).length;
+      return (
+        <div className="capitalize text-center">{`${playerCount}/9 players`}</div>
+      );
+    },
   },
   {
-    accessorKey: "status",
-    header: () => <div className="text-center">Status</div>,
-    cell: ({ row }) => (
-      <div className="capitalize text-center">
-        <Badge>{row.getValue("status")}</Badge>
-      </div>
-    ),
+    accessorKey: "date_and_time",
+    header: () => <div className="text-center">Date and time</div>,
+    cell: ({ row }) => {
+      const dateValue = row.getValue("date_and_time");
+      let formattedDateTime: string;
+      const formatDateTime = (date: Date) => {
+        const options: Intl.DateTimeFormatOptions = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        };
+        return new Intl.DateTimeFormat("en-US", options).format(date);
+      };
+      if (dateValue instanceof Date) {
+        formattedDateTime = formatDateTime(dateValue);
+      } else if (typeof dateValue === "string") {
+        const parsedDate = new Date(dateValue);
+        formattedDateTime = formatDateTime(parsedDate);
+      } else {
+        formattedDateTime = "Invalid date";
+      }
+      return <div className="capitalize text-center">{formattedDateTime}</div>;
+    },
   },
   {
     id: "actions",
@@ -240,7 +314,7 @@ const waitingList: Player[] = [
 
 export default function DataTableDemo() {
   const [data, setData] = React.useState<ScheduleDetails[]>([]);
-
+  const [loading, setLoading] = React.useState(true);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -251,6 +325,8 @@ export default function DataTableDemo() {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
+
       try {
         const result = await getSchedules();
         if (Array.isArray(result)) {
@@ -261,6 +337,7 @@ export default function DataTableDemo() {
       } catch (error) {
         console.error("Error fetching schedules:", error);
       }
+      setLoading(false);
     };
 
     fetchData();
@@ -286,113 +363,121 @@ export default function DataTableDemo() {
   });
 
   return (
-    <div className="w-full">
-      <div className="flex items-center mb-4">
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="w-full">
+          <div className="flex items-center mb-6">
+            <Input
+              placeholder="Filter Location"
+              value={
+                (table.getColumn("location")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("location")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  Columns <ChevronDownIcon className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) =>
+                          column.toggleVisibility(!!value)
+                        }
+                      >
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
                           )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
                     </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
