@@ -1,12 +1,12 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
 
-const supabase = createClient();
 
 // Create a Location
 export async function createLocation(
   location: Omit<LocationModel, "location_id">
 ): Promise<LocationModel | string> {
+  const supabase = createClient();
   try {
     const { data, error } = await supabase
       .from("location")
@@ -26,6 +26,8 @@ export async function createLocation(
 
 // Read Locations
 export async function readLocations(): Promise<LocationModel[] | string> {
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase.from("location").select();
     if (error) {
@@ -43,6 +45,7 @@ export async function readLocations(): Promise<LocationModel[] | string> {
 export async function readLocationById(
   locationId: number
 ): Promise<LocationModel | null> {
+  const supabase = createClient();
   try {
     const { data, error } = await supabase
       .from("location")
@@ -69,6 +72,7 @@ export async function updateLocation(
   updates: Partial<LocationModel>
 ): Promise<LocationModel | string> {
   try {
+    const supabase = createClient();
     // Perform the update operation
     const { data, error } = await supabase
       .from("location")
@@ -98,7 +102,8 @@ export async function updateLocation(
 }
 // Delete a Location
 export async function deleteLocation(location_id: number): Promise<string> {
-  try {
+  try { 
+    const supabase = createClient();
     const { error } = await supabase
       .from("location")
       .delete()

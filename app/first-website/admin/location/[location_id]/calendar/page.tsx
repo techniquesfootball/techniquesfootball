@@ -41,7 +41,6 @@ import { createTeamsAndSchedule } from "@/lib/team";
 import { getSchedules, ScheduleDetails } from "@/lib/schedule";
 import CircularProgressBar from "@/components/ui/circular-progress-bar";
 import { Calendar } from "@/components/ui/calendar";
-
 export default function Page({ params }: { params: { location_id: number } }) {
   const [date, setDate] = useState<Date>();
   const [selectedGames, setSelectedGames] = useState<ScheduleDetails[]>([]);
